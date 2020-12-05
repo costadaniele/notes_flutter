@@ -23,21 +23,22 @@ class _PrevisaoState extends State<Previsao> {
     _recuperar();
   }
 
-  _recuperar() async {
+  Future<String> _recuperar() async {
     var url =
         'http://api.openweathermap.org/data/2.5/weather?q=santos,sp,br&units=metric&appid=be1b3eee2052d9adedf9e3d48b4143d0';
     // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url);
     Map<String, dynamic> retorno = convert.jsonDecode(response.body);
-    log(response.body);
-    log(retorno.toString());
     setState(() {
       _temp = retorno["main"]["temp"];
       _name = retorno["name"];
       _description = retorno["weather"][0]["description"];
       _icon = retorno["weather"][0]["icon"];
     });
+    return '';
   }
+
+  Future<String> getFutureDados() async => await _recuperar();
 
   @override
   Widget build(BuildContext context) {
@@ -47,38 +48,49 @@ class _PrevisaoState extends State<Previsao> {
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(40),
-          child: Column(
-              //mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "Temperatura: $_temp",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "Nome: $_name",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "Descrição: $_description",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 50),
-                    child: Image.network(
-                        "http://openweathermap.org/img/w/" + _icon + ".png")),
-              ]),
-        ),
+            padding: EdgeInsets.all(40),
+            child: FutureBuilder(
+                future: getFutureDados(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                        //mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            child: Text(
+                              "Temperatura: $_temp",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            child: Text(
+                              "Nome: $_name",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10),
+                            child: Text(
+                              "Descrição: $_description",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 50),
+                              child: Image.network(
+                                  "http://openweathermap.org/img/w/" +
+                                      _icon +
+                                      ".png")),
+                        ]);
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                })),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.replay),
@@ -117,7 +129,7 @@ class _PrevisaoState extends State<Previsao> {
             },
           ),
           ListTile(
-            leading: new Icon(Icons.home),
+            leading: new Icon(Icons.wb_cloudy),
             title: Text("Previsão do Tempo"),
             onTap: () {
               Navigator.of(context).pop();

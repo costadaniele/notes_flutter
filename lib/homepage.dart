@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           ListTile(
-            leading: new Icon(Icons.home),
+            leading: new Icon(Icons.wb_cloudy),
             title: Text("Previsão do Tempo"),
             onTap: () {
               Navigator.of(context).pop();
